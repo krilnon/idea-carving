@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+	<head>
+		<link href="lib/codemirror-3.15/codemirror.css" rel="stylesheet" type="text/css">
+		<link href="index.css" rel="stylesheet" type="text/css">
+		
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script src="lib/codemirror-3.15/codemirror.js"></script>
+		<script src="lib/codemirror-3.15/javascript.js"></script>
+		
+		<script src="lib/harmony-reflect/reflect.js"></script>
+		<script src="lib/underscore/underscore-min.js"></script>
+		
+		<script src="loose-require.js"></script>
+		<script src="test.js"></script>
+		<script src="index.js"></script>
+	</head>
+	<body>
+		<h1>b-ide 2</h1>
+		<p>
+			Remember, this page needs ES6 proxies: 
+			<a href="chrome://flags/#enable-javascript-harmony" >
+				chrome://flags/#enable-javascript-harmony
+			</a>
+		</p>
+		<div id="editor"></div>
+		<div id="outline">
+			<h2>Modules</h2>
+			<div id="modules"></div>
+		</div>
+	</body>
+</html>

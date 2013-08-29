@@ -1,0 +1,19 @@
+#editor {
+	position: relative;
+	width: 600px;
+	height: 600px;
+	border: 1px dotted black;
+	float: left;
+}
+
+#outline {
+	position: relative;
+	width: 300px;
+	float: right;
+	border: 1px dotted black;
+}
+
+#modules {
+	font-family: Consolas;
+	font-size: 10pt;
+}
