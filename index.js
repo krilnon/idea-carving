@@ -74,6 +74,14 @@ function onModuleData(data){
 	$('#modules').children().remove()
 	
 	renderModuleData(data.value)
+	
+	// make modules for type inference
+	for(var moduleName in data.value){
+		var moduleData = data.value[moduleName]
+		var maker = new ModuleMaker(moduleName, moduleData.members)
+		
+		console.log(maker.makeInferenceModule())
+	}
 }
 
 function renderModuleData(modules){

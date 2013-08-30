@@ -1,3 +1,7 @@
+h2 {
+	margin-top: 0;
+}
+
 #editor {
 	position: relative;
 	width: 600px;
@@ -11,6 +15,7 @@
 	width: 300px;
 	float: right;
 	border: 1px dotted black;
+	padding: 0.5em;
 }
 
 #modules {
