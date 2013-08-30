@@ -9,3 +9,7 @@ junk.bar.zap('hi', 42, {}, new WeakMap())
 junk.bar.zap('hi', 'grr', {}, new WeakMap())
 
 fakemod.someVal
+
+var foo = fs.readFileSync('foo.txt')
+
+foo.bar

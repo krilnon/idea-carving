@@ -17,3 +17,8 @@
 	font-family: Consolas;
 	font-size: 10pt;
 }
+
+.status-error {
+	color: red;
+	background-color: black;
+}

@@ -43,38 +43,47 @@ function onCodeChange(editor, change){
 		type: 'tryParse',
 		code: code
 	})
+	$('#ometa-status').addClass('status-error')
 	
 	proxyWorker.postMessage({
 		type: 'run',
 		code: code
 	})
+	$('#proxy-status').addClass('status-error')
 }
 
 function onTryParse(data){	
 	if(data.value){ // OMeta parsed the code successfully
-		console.log('cfa2')
+		$('#ometa-status').removeClass('status-error')
 		cfa2Worker.postMessage({
 			type: 'parseAndGetTags',
 			code: data.code
 		})
+		$('#cfa2-status').addClass('status-error')
 	}
 }
 
 function onTags(data){
 	console.log('got tags', data)
+	$('#cfa2-status').removeClass('status-error')
 }
 
 function onModuleData(data){
 	console.log('got proxy run results', data.value)
+	$('#proxy-status').removeClass('status-error')
 	$('#modules').children().remove()
 	
-	for(var module in data.value){
+	renderModuleData(data.value)
+}
+
+function renderModuleData(modules){
+	for(var module in modules){
 		var $name = $('<h3 />', { text: module })
 		var $list = $('<ul />')
 		
-		for(var member in data.value[module].members){
+		for(var member in modules[module].members){
 			var text = member.split(module + '.').join('') //FIXME: Horribly messy way to remove the name.
-			var memberObj = data.value[module].members[member]
+			var memberObj = modules[module].members[member]
 			
 			if(memberObj.args) text += ': function(' + memberObj.args + ')'
 			
@@ -85,28 +94,6 @@ function onModuleData(data){
 		}
 		
 		$('#modules').append($name, $list)
-	}
-}
-
-function initSocket(){
-	socket = new WebSocket("ws://" + document.domain + ":2000/codraw");
-	console.log("Using a standard websocket");
-
-	self.socket.onopen = function(e){
-	self.trigger('open', e)
-	console.log('socket opened')
-	};
-
-	self.socket.onerror = function(e){
-	self.trigger('error', e)
-	}
-
-	self.socket.onmessage = function(e){
-		e.data
-	}
-
-	self.socket.onclose = function(e){
-		
 	}
 }
 
