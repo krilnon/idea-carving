@@ -1,7 +1,7 @@
 var 
 	path = require('path'),
 	junk = require('junk'),
-	fakemod = require('fake-module')
+	fakemod = require('fake' + ('-').substring(0, 1) + 'module')
 
 junk.foo
 junk.bar.baz

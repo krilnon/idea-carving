@@ -65,7 +65,7 @@ ModuleMaker.prototype.makeMemberInitializer = function(info){
 	}
 }
 
-// TODO: 
+// TODO: again, make this actually work instead of hack-work
 ModuleMaker.prototype.withinModuleName = function(qname){
 	return qname.split(new RegExp('^' + this.name + '\\.')).join('')
 }

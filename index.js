@@ -82,6 +82,27 @@ function onModuleData(data){
 		
 		console.log(maker.makeInferenceModule())
 	}
+	
+	// replace requires with instances of inference models
+	
+	var requires = []
+	_.each(parse(editor.getValue()), function(astNode, i){
+		var nodeRequires = new RequireWalker(astNode).walk()
+		if(nodeRequires && nodeRequires.length > 0) requires = requires.concat(nodeRequires)
+	})
+	console.log('require expressions: ', requires)
+	
+	// TODO: !!!! Use the indices in `requires` and strings in RequireCallRecord#callExpr to
+	// link up the code from the ModuleMakers with the editor.getValue code, replaced with 
+	// new instances of the inference modules
+	
+	/*    |
+	      |
+	   \  |   /
+	    \ |  /
+	     \| /
+	      \/
+	*/
 }
 
 function renderModuleData(modules){
