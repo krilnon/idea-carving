@@ -3,8 +3,10 @@
 	<head>
 		<link href="lib/codemirror-3.15/codemirror.css" rel="stylesheet" type="text/css">
 		<link href="index.css" rel="stylesheet" type="text/css">
+        <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        
 		<script src="lib/codemirror-3.15/codemirror.js"></script>
 		<script src="lib/codemirror-3.15/javascript.js"></script>
 		
@@ -21,19 +23,37 @@
 		<script src="index.js"></script>
 	</head>
 	<body>
-		<h1>b-ide 2</h1>
-		<p>
-			<span id="ometa-status">OMeta</span>, 
-			<span id="cfa2-status" class="status-error">CFA2</span>, 
-			<span id="proxy-status">direct proxies</span>.  Remember, this page needs ES6 proxies: 
-			<a href="chrome://flags/#enable-javascript-harmony" >
-				chrome://flags/#enable-javascript-harmony
-			</a>
-		</p>
-		<div id="editor"></div>
-		<div id="outline">
-			<h2>Modules</h2>
-			<div id="modules"></div>
+		<div class="container">
+			<h1>b-ide 2</h1>
+			<p>
+				<span id="ometa-status">OMeta</span>, 
+				<span id="cfa2-status" class="status-error">CFA2</span>, 
+				<span id="proxy-status">direct proxies</span>.  Remember, this page needs ES6 proxies: 
+				<a href="chrome://flags/#enable-javascript-harmony" >
+					chrome://flags/#enable-javascript-harmony
+				</a>
+			</p>
+			<div id="editor-ui">
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#file1-js" data-toggle="tab">file1.js</a></li>
+					<li><a href="#file2-js" data-toggle="tab">file2.js</a></li>
+				</ul>
+				
+				<div class="tab-content">
+					<div id="file1-js" class="tab-pane active">
+						<div id="editor" class="editor"></div>
+					</div>
+					<div id="file2-js" class="tab-pane">
+						hi
+					</div>
+				</div>
+				
+			</div>
+			<div id="outline">
+				<h2>Modules</h2>
+				<div id="modules"></div>
+			</div>
 		</div>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	</body>
 </html>

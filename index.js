@@ -76,12 +76,18 @@ function onModuleData(data){
 	renderModuleData(data.value)
 	
 	// make modules for type inference
+	var moduleCode = {}
 	for(var moduleName in data.value){
 		var moduleData = data.value[moduleName]
 		var maker = new ModuleMaker(moduleName, moduleData.members)
 		
-		console.log(maker.makeInferenceModule())
+		var module = maker.makeInferenceModule()
+		console.log(module)
+		
+		moduleCode[moduleName] = module
 	}
+	
+	renderModuleTabs(moduleCode)
 	
 	// replace requires with instances of inference models
 	
@@ -103,6 +109,38 @@ function onModuleData(data){
 	     \| /
 	      \/
 	*/
+}
+
+function renderModuleTabs(modules){
+	var tabs = $('#editor-ui .nav-tabs')
+	tabs.children().slice(1).remove()
+	
+	var panes = $('#editor-ui .tab-content')
+		
+	_.each(modules, function(code, name){
+		// make tab ui 
+		var tab = $('<li />')
+		var a = $('<a />', {
+			href: '#' + name,
+			'data-toggle': 'tab',
+			text: name
+		})
+		
+		tab.append(a)
+		tabs.append(tab)
+		
+		// make the tab content holder
+		var pane = $('<div />', { 
+			class: 'tab-pane',
+			id: name
+		})
+		
+		pane.append($('<pre />', {
+			text: code
+		}))
+		
+		panes.append(pane)
+	})
 }
 
 function renderModuleData(modules){

@@ -23,11 +23,11 @@ function refreshTechCashInfo(){
   console.log('logging into techcash at address: ', loginInfo.server)
   
   techcash.getTransactions(loginInfo, 100, function(e){
-   	
+   	e.data.transaction 
   })
   
+  techcash.addMoney(5, loginInfo)
+  
 }
-
-
 
 
