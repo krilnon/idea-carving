@@ -1,4 +1,4 @@
-importScripts('../cfa2/cfa2.js', 'consoleLog2.js')
+importScripts('lib/cfa2/cfa2.js', 'consoleLog2.js')
 
 var 
 	API = {

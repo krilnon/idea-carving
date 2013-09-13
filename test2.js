@@ -29,5 +29,3 @@ function refreshTechCashInfo(){
   techcash.addMoney(5, loginInfo)
   
 }
-
-

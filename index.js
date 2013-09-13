@@ -28,7 +28,7 @@ function init(){
 
 function getInitialCode(){
 	$.ajax({
-		url: 'test.js',
+		url: 'test2.js?theseus=no',
 		dataType: 'text',
 		success: function(data){
 			editor.setValue(data)
