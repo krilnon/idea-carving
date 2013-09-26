@@ -72,7 +72,7 @@ ModuleMaker.prototype.withinModuleName = function(qname){
 
 
 /*
-	Turns a require('blah') name into one that should be guaranteed to work as a JS identifier.
+	Turns a require('blah') name into one that should be guaranteed-ish to work as a JS identifier.
 */
 function toIdentifier(name){
 	var parts = name.split(/\W+/)
