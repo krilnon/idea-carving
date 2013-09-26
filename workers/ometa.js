@@ -1,13 +1,13 @@
 importScripts(
-	'lib/OMeta/lib.js',
-	'lib/OMeta/ometa-base.js',
-	'lib/OMeta/parser.js',
-	'lib/OMeta/bs-js-compiler.js',
-	'lib/OMeta/bs-ometa-compiler.js',
-	'lib/OMeta/bs-ometa-optimizer.js',
-	'lib/OMeta/bs-ometa-js-compiler.js',
-	'lib/OMeta/bs-project-list-parser.js',
-	'consoleLog2.js'
+	'../lib/OMeta/lib.js',
+	'../lib/OMeta/ometa-base.js',
+	'../lib/OMeta/parser.js',
+	'../lib/OMeta/bs-js-compiler.js',
+	'../lib/OMeta/bs-ometa-compiler.js',
+	'../lib/OMeta/bs-ometa-optimizer.js',
+	'../lib/OMeta/bs-ometa-js-compiler.js',
+	'../lib/OMeta/bs-project-list-parser.js',
+	'../consoleLog2.js'
 )
 
 var 

@@ -1,8 +1,9 @@
+var console = { log: function(){} }
+
 importScripts(
-	'lib/harmony-reflect/reflect.js',
-	'lib/underscore/underscore-min.js',
-	'consoleLog2.js',
-	'loose-require.js'
+	'../lib/harmony-reflect/reflect.js',
+	'../lib/underscore/underscore-min.js',
+	'../loose-require.js'
 )
 
 var 

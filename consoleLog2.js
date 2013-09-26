@@ -1,8 +1,10 @@
 var console = { log: consoleLog }
 
 function consoleLog(args){
-	postMessage({
-		type: 'console.log',
-		args: 0 //JSON.stringify(Array.prototype.concat.call(arguments))
-	})
+	try {
+		postMessage({
+			type: 'console.log',
+			args: JSON.stringify(Array.prototype.concat.call(arguments))
+		})
+	} catch(err){}
 }

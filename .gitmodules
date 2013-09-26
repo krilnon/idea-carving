@@ -7,3 +7,6 @@
 [submodule "lib/doctorjs"]
 	path = lib/doctorjs
 	url = https://github.com/mozilla/doctorjs.git
+[submodule "lib/esprima"]
+	path = lib/esprima
+	url = https://github.com/ariya/esprima.git

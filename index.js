@@ -1,11 +1,13 @@
 var 
 	editor,
-	ometaWorker = new Worker('ometa-worker.js'),
-	ometaAPI = new API({ tryParse: onTryParse, error: onOMetaError, 'console.log': consoleLog2 }),
-	cfa2Worker = new Worker('cfa2-worker.js'),
-	cfa2API = new API({ onTags: onTags, 'console.log': consoleLog2 }),
-	proxyWorker = new Worker('proxy-worker.js'),
-	proxyAPI = new API({ onModuleData: onModuleData, 'console.log': consoleLog2 })
+	ometaWorker = new Worker('workers/ometa.js'),
+	ometaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('OMeta') }),
+	cfa2Worker = new Worker('workers/cfa2.js'),
+	cfa2API = new API({ onTags: onTags, 'console.log': consoleLog2('cfa2') }),
+	proxyWorker = new Worker('workers/proxy.js'),
+	proxyAPI = new API({ onModuleData: onModuleData, 'console.log': consoleLog2('proxy') }),
+	esprimaWorker = new Worker('workers/esprima.js'),
+	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') })
 	
 
 $(init)
@@ -21,7 +23,7 @@ function init(){
 	
 	getInitialCode()
 	editor.on('change', onCodeChange)
-	ometaWorker.onmessage = ometaAPI.handler
+	esprimaWorker.onmessage = esprimaAPI.handler
 	cfa2Worker.onmessage = cfa2API.handler
 	proxyWorker.onmessage = proxyAPI.handler
 }
@@ -39,22 +41,22 @@ function getInitialCode(){
 function onCodeChange(editor, change){
 	var code = editor.doc.getValue()
 	
-	ometaWorker.postMessage({
+	esprimaWorker.postMessage({
 		type: 'tryParse',
 		code: code
 	})
-	$('#ometa-status').addClass('status-error')
+	$('#esprima-status').addClass('status-error')
 	
 	proxyWorker.postMessage({
 		type: 'run',
 		code: code
 	})
-	$('#proxy-status').addClass('status-error')
+	$('#esprima-status').addClass('status-error')
 }
 
 function onTryParse(data){	
-	if(data.value){ // OMeta parsed the code successfully
-		$('#ometa-status').removeClass('status-error')
+	if(data.value){ // esprima parsed the code successfully
+		$('#esprima-status').removeClass('status-error')
 		cfa2Worker.postMessage({
 			type: 'parseAndGetTags',
 			code: data.code
@@ -172,10 +174,12 @@ function API(defs){
 	}
 }
 
-function consoleLog2(data){
-	console.log('worker: ', JSON.parse(data.args))
+function consoleLog2(name){
+	return function(data){
+		console.log('worker ' + name + ': ', JSON.parse(data.args))
+	}
 }
 
-function onOMetaError(data){
-	console.log('ometa error', data)
+function onParseError(data){
+	console.log('esprima error', data)
 }

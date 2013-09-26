@@ -20,14 +20,15 @@
 		
 		<!-- <script src="loose-require.js"></script>
 		<script src="test.js"></script> -->
+		<!-- <script src="lib/esprima/esprima.js"></script> -->
 		<script src="index.js"></script>
 	</head>
 	<body>
 		<div class="container">
 			<h1>b-ide 2</h1>
 			<p>
-				<span id="ometa-status">OMeta</span>, 
-				<span id="cfa2-status" class="status-error">CFA2</span>, 
+				<span id="esprima-status">Esprima</span>, 
+				<span id="cfa2-status">CFA2</span>, 
 				<span id="proxy-status">direct proxies</span>.  Remember, this page needs ES6 proxies: 
 				<a href="chrome://flags/#enable-javascript-harmony" >
 					chrome://flags/#enable-javascript-harmony
@@ -35,7 +36,7 @@
 			</p>
 			<div id="editor-ui">
 				<ul class="nav nav-tabs">
-					<li class="active"><a href="#file1-js" data-toggle="tab">file1.js</a></li>
+					<li class="active"><a href="#file1-js" data-toggle="tab">Main</a></li>
 					<li><a href="#file2-js" data-toggle="tab">file2.js</a></li>
 				</ul>
 				
@@ -43,11 +44,8 @@
 					<div id="file1-js" class="tab-pane active">
 						<div id="editor" class="editor"></div>
 					</div>
-					<div id="file2-js" class="tab-pane">
-						hi
-					</div>
 				</div>
-				
+				<button type="button" id="run-btn" class="btn btn-default">Run</button>
 			</div>
 			<div id="outline">
 				<h2>Modules</h2>
