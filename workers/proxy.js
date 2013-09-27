@@ -24,7 +24,10 @@ function run(data){
 	
 	modules = {}
 	__nVals__ = []
-	eval(code)
+	
+	try {
+		eval(code)
+	} catch(err){}
 	
 	var moduleData = getModuleData()
 	//console.log(JSON.stringify(moduleData))

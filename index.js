@@ -84,7 +84,6 @@ function onModuleData(data){
 		var maker = new ModuleMaker(moduleName, moduleData.members)
 		
 		var module = maker.makeInferenceModule()
-		console.log(module)
 		
 		moduleCode[moduleName] = module
 	}

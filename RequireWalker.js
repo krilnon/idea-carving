@@ -24,7 +24,7 @@ RequireWalker.prototype.varWalk = function(){
 		var end = decl.initializer.end
 		var expr = source.substring(start, end)
 		
-		if(decl.initializer[0].value == 'require'){
+		if(decl.initializer[0] && decl.initializer[0].value == 'require'){
 			var rStart = decl.initializer[1].start
 			var rEnd = decl.initializer[1].end - 1
 			var requireExpr = source.substring(rStart, rEnd)
