@@ -9,6 +9,7 @@ var
 	esprimaWorker = new Worker('workers/esprima.js'),
 	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') })
 	
+var NPSPACE = '\u200B'
 
 $(init)
 
@@ -23,6 +24,8 @@ function init(){
 	
 	getInitialCode()
 	editor.on('change', onCodeChange)
+	editor.on('dragover', onEditorDragOver)
+	editor.on('drop', onEditorDrop)
 	esprimaWorker.onmessage = esprimaAPI.handler
 	cfa2Worker.onmessage = cfa2API.handler
 	proxyWorker.onmessage = proxyAPI.handler
@@ -52,6 +55,38 @@ function onCodeChange(editor, change){
 		code: code
 	})
 	$('#esprima-status').addClass('status-error')
+}
+
+function onEditorDrop(editor, e){
+	e.stopPropagation()
+	e.preventDefault()
+
+	var files = e.dataTransfer.files
+	for(var i = 0; i < files.length; i++){
+		var reader = new FileReader
+		
+		$(reader).on('load', placeDroppedImage)
+
+		reader.readAsDataURL(files[i])
+	}
+}
+
+function placeDroppedImage(e){
+	var $img = $('<img />', { 
+		src: e.originalEvent.target.result
+	})
+	
+	var caret = editor.getCursor()
+	editor.replaceRange(' ', caret, caret)
+	
+	editor.setBookmark(caret, {
+		widget: $img[0]
+	})
+}
+
+function onEditorDragOver(e){
+	//e.preventDefault()
+	console.log(e)
 }
 
 function onTryParse(data){	
