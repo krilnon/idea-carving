@@ -10,6 +10,7 @@ var
 	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') })
 	
 var NPSPACE = '\u200B'
+var SNOWMAN = '☃'
 
 $(init)
 
@@ -37,8 +38,35 @@ function getInitialCode(){
 		dataType: 'text',
 		success: function(data){
 			editor.setValue(data)
+			
+			var ast = esprima.parse(data, { loc: true, comment: true })
+			
+			console.log('got the code...', ast)
+			
+			matchLineComments(ast)
 		}
 	})
+}
+
+function matchLineComments(ast){
+	var comments = ast.comments
+	
+	var program = ast.body
+	
+	var match = matchComments(comments, program)
+	
+}
+
+function matchComments(comments, node){
+	// check this node against comments
+	
+	for(var property in node){
+		// look for children of this node that are actually nodes
+		// e.g. node.type exists
+		if(node[property] && node[property].type){ // type in ASTExpressionTypes would be better
+			return matchComments(comments, node[property])
+		}
+	}
 }
 
 function onCodeChange(editor, change){
@@ -106,6 +134,7 @@ function onTags(data){
 }
 
 function onModuleData(data){
+	var code = editor.getValue()
 	console.log('got proxy run results', data.value)
 	$('#proxy-status').removeClass('status-error')
 	$('#modules').children().remove()
@@ -128,7 +157,7 @@ function onModuleData(data){
 	// replace requires with instances of inference models
 	
 	var requires = []
-	_.each(parse(editor.getValue()), function(astNode, i){
+	_.each(parse(code), function(astNode, i){
 		var nodeRequires = new RequireWalker(astNode).walk()
 		if(nodeRequires && nodeRequires.length > 0) requires = requires.concat(nodeRequires)
 	})
@@ -145,6 +174,37 @@ function onModuleData(data){
 	     \| /
 	      \/
 	*/
+	
+	var newCode = replaceRequiresWithModules(code, moduleCode, requires)
+}
+
+function replaceRequiresWithModules(code, modules, requires){
+	var tokens = {}
+	_.each(requires, function(callRecord, i){
+		var moduleName = eval(callRecord.callExpr) // TODO: sanitize?
+		var moduleCode = modules[moduleName]
+		
+		var moduleClass = toIdentifier(moduleName) + 'Module'
+		
+		var instantiator = '(new ' + moduleClass + ')'
+		
+		console.log('indices', callRecord.start, callRecord.end)
+		
+		var iString = i.toString()
+		var len = iString.length
+		
+		var token = SNOWMAN + (new Array(callRecord.end - callRecord.start - 1 - len)).join('0') + iString + SNOWMAN
+		code = code.substr(0, callRecord.start) + token + code.substr(callRecord.end)
+		
+		
+		tokens[token] = instantiator
+	})
+	
+	_.each(tokens, function(v, token){
+		code = code.replace(token, v)
+	})
+	
+	$('#code2').text(code)
 }
 
 function renderModuleTabs(modules){

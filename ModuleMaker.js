@@ -57,7 +57,7 @@ ModuleMaker.prototype.makeInferenceMember = function(qname){
 
 ModuleMaker.prototype.makeMemberInitializer = function(info){
 	if(info.args){
-		return 'function(' + info.args.toLowerCase() + '){ /* ... */ }'
+		return 'function(' + info.args.toUpperCase() + '){ /* ... */ }'
 	} else if(info.type){
 		// TODO: Pass type info along from proxy worker.
 	} else {

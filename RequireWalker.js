@@ -29,7 +29,7 @@ RequireWalker.prototype.varWalk = function(){
 			var rEnd = decl.initializer[1].end - 1
 			var requireExpr = source.substring(rStart, rEnd)
 			
-			requires.push(new RequireCallRecord(expr, requireExpr, start, end))
+			requires.push(new RequireCallRecord(expr, requireExpr, start, end, decl))
 		}
 	})
 	
@@ -37,9 +37,10 @@ RequireWalker.prototype.varWalk = function(){
 }
 
 
-function RequireCallRecord(expr, callExpr, start, end){
+function RequireCallRecord(expr, callExpr, start, end, node){
 	this.expr = expr
 	this.callExpr = callExpr
 	this.start = start
 	this.end = end
+	this.node = node
 }
