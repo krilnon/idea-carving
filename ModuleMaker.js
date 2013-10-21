@@ -1,11 +1,8 @@
-
-
 function ModuleMaker(name, members){
 	this.name = name
 	this.moduleName = toIdentifier(name) + 'Module'
 	this.members = members
 }
-
 
 /*
 	Currently, making modules by string building / templating.  
@@ -15,9 +12,7 @@ ModuleMaker.prototype.makeInferenceModule = function(){
 	var m = 'function ' + this.moduleName + '(){\n'
 	
 	m += this.makeInferenceMembers()
-	
 	m += '\n}\n\n'
-	
 	m += this.makeInferenceMemberReturnTypes()
 	
 	return m
@@ -25,19 +20,12 @@ ModuleMaker.prototype.makeInferenceModule = function(){
 
 ModuleMaker.prototype.makeInferenceMembers = function(){
 	var m = ''
-	var maxMember = _.max(Object.keys(this.members), function(member){ return memberLevel(member) })
-	var maxLevel = maxMember == -Infinity ? 0 : memberLevel(maxMember)
-	var self = this
 	
-	_.each(_.range(maxLevel + 1), function(i){
-		_.each(Object.keys(self.members), function(qname){
-			if(memberLevel(qname) == i){
-				var memberCode = self.makeInferenceMember(qname)
-				if(memberCode) m += '    ' + memberCode + '\n\n'
-			}
-		})
+	this.memberIterator(function(member, qname, i){
+		var memberCode = this.makeInferenceMember(qname)
+		if(memberCode) m += '    ' + memberCode + '\n\n'
 	})
-	
+
 	return m
 }
 
@@ -48,7 +36,7 @@ ModuleMaker.prototype.memberIterator = function(iterator){
 	
 	_.each(_.range(maxLevel + 1), function(i){
 		_.each(Object.keys(self.members), function(qname){
-			if(memberLevel(qname) == i){
+			if(memberLevel(qname) == i && !isFunctionDerived(qname)){
 				iterator.call(self, self.members[qname], qname, i)
 			}
 		})
@@ -56,8 +44,7 @@ ModuleMaker.prototype.memberIterator = function(iterator){
 }
 
 ModuleMaker.prototype.makeInferenceMember = function(qname){
-	if(isFunctionDerived(qname)) return
-	
+	if(isFunctionDerived(qname)) return	
 	var m = ''
 	
 	var memberInfo = this.members[qname]
@@ -90,7 +77,6 @@ ModuleMaker.prototype.makeInferenceMemberReturnTypes = function(){
 	var m = ''
 	
 	this.memberIterator(function(member, qname, i){
-		if(isFunctionDerived(qname)) return
 		m += 'function ' + this.makeRetValName(qname) + '() {}\n'
 	})
 	
