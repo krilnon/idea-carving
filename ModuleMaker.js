@@ -16,7 +16,9 @@ ModuleMaker.prototype.makeInferenceModule = function(){
 	
 	m += this.makeInferenceMembers()
 	
-	m += '\n}'
+	m += '\n}\n\n'
+	
+	m += this.makeInferenceMemberReturnTypes()
 	
 	return m
 }
@@ -25,7 +27,6 @@ ModuleMaker.prototype.makeInferenceMembers = function(){
 	var m = ''
 	var maxMember = _.max(Object.keys(this.members), function(member){ return memberLevel(member) })
 	var maxLevel = maxMember == -Infinity ? 0 : memberLevel(maxMember)
-	console.log('maxLevel', maxLevel)
 	var self = this
 	
 	_.each(_.range(maxLevel + 1), function(i){
@@ -40,6 +41,20 @@ ModuleMaker.prototype.makeInferenceMembers = function(){
 	return m
 }
 
+ModuleMaker.prototype.memberIterator = function(iterator){
+	var maxMember = _.max(Object.keys(this.members), function(member){ return memberLevel(member) })
+	var maxLevel = maxMember == -Infinity ? 0 : memberLevel(maxMember)
+	var self = this
+	
+	_.each(_.range(maxLevel + 1), function(i){
+		_.each(Object.keys(self.members), function(qname){
+			if(memberLevel(qname) == i){
+				iterator.call(self, self.members[qname], qname, i)
+			}
+		})
+	})
+}
+
 ModuleMaker.prototype.makeInferenceMember = function(qname){
 	if(isFunctionDerived(qname)) return
 	
@@ -50,14 +65,15 @@ ModuleMaker.prototype.makeInferenceMember = function(qname){
 	
 	m += 'this.' + name + ' = '
 	
-	m += this.makeMemberInitializer(memberInfo)
+	m += this.makeMemberInitializer(memberInfo, qname)
 	
 	return m
 }
 
-ModuleMaker.prototype.makeMemberInitializer = function(info){
+ModuleMaker.prototype.makeMemberInitializer = function(info, qname){
 	if(info.args){
-		return 'function(' + info.args.toUpperCase() + '){ /* ... */ }'
+		var safeArgs = _.map(info.args.split(','), function(e, i){ return 'arg' + i}).join(', ')
+		return 'function(' + safeArgs + '){ return new ' + this.makeRetValName(qname) + '() }'
 	} else if(info.type){
 		// TODO: Pass type info along from proxy worker.
 	} else {
@@ -70,6 +86,20 @@ ModuleMaker.prototype.withinModuleName = function(qname){
 	return qname.split(new RegExp('^' + this.name + '\\.')).join('')
 }
 
+ModuleMaker.prototype.makeInferenceMemberReturnTypes = function(){
+	var m = ''
+	
+	this.memberIterator(function(member, qname, i){
+		if(isFunctionDerived(qname)) return
+		m += 'function ' + this.makeRetValName(qname) + '() {}\n'
+	})
+	
+	return m
+}
+
+ModuleMaker.prototype.makeRetValName = function(qname){
+	return this.moduleName + '__' + this.withinModuleName(qname) + '__RetVal'
+}
 
 /*
 	Turns a require('blah') name into one that should be guaranteed-ish to work as a JS identifier.

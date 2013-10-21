@@ -8,24 +8,9 @@ var
 var
 	transactions = []
 
-main()
+var loginInfo = techcash.loginInfo({ user: 'tim', pass: 'beaver' })
+var balance = techcash.addMoney(5, loginInfo)
 
-function main(){
-	refreshTechCashInfo()
-    
-    // setInterval(refreshTechCashInfo, 60 * 60 * 1000)
-}
-
-function refreshTechCashInfo(){
-  var loginInfo = techcash.loginInfo({ user: 'tim', pass: 'beaver' })
-  
-  // login server is determined by username
-  console.log('logging into techcash at address: ', loginInfo.server)
-  
-  techcash.getTransactions(loginInfo, 100, function(e){
-   	e.data.transaction 
-  })
-  
-  techcash.addMoney(5, loginInfo)
-  
-}
+techcash.getTransactions(loginInfo, 100, function(e){
+ 	e.data.transaction 
+})

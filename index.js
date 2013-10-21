@@ -1,5 +1,7 @@
 var 
 	editor,
+	latestCode,
+	latestInferenceCode,
 	ometaWorker = new Worker('workers/ometa.js'),
 	ometaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('OMeta') }),
 	cfa2Worker = new Worker('workers/cfa2.js'),
@@ -70,14 +72,7 @@ function matchComments(comments, node){
 }
 
 function onCodeChange(editor, change){
-	var code = editor.doc.getValue()
-	
-	esprimaWorker.postMessage({
-		type: 'tryParse',
-		code: code
-	})
-	$('#esprima-status').addClass('status-error')
-	
+	var code = latestCode = editor.doc.getValue()
 	proxyWorker.postMessage({
 		type: 'run',
 		code: code
@@ -161,37 +156,30 @@ function onModuleData(data){
 		var nodeRequires = new RequireWalker(astNode).walk()
 		if(nodeRequires && nodeRequires.length > 0) requires = requires.concat(nodeRequires)
 	})
-	console.log('require expressions: ', requires)
 	
-	// TODO: !!!! Use the indices in `requires` and strings in RequireCallRecord#callExpr to
-	// link up the code from the ModuleMakers with the editor.getValue code, replaced with 
-	// new instances of the inference modules
+	var newCode = replaceRequiresWithModules(code, requires)
 	
-	/*    |
-	      |
-	   \  |   /
-	    \ |  /
-	     \| /
-	      \/
-	*/
+	latestInferenceCode = _.values(moduleCode).concat(newCode).join('\n')
+	$('#code2').text(latestInferenceCode)
 	
-	var newCode = replaceRequiresWithModules(code, moduleCode, requires)
+	// now send the inference code to CFA2 through Esprima
+	
+	esprimaWorker.postMessage({
+		type: 'tryParse',
+		code: latestInferenceCode
+	})
+	$('#esprima-status').addClass('status-error')
 }
 
-function replaceRequiresWithModules(code, modules, requires){
+function replaceRequiresWithModules(code, requires){
 	var tokens = {}
 	_.each(requires, function(callRecord, i){
-		var moduleName = eval(callRecord.callExpr) // TODO: sanitize?
-		var moduleCode = modules[moduleName]
-		
-		var moduleClass = toIdentifier(moduleName) + 'Module'
-		
-		var instantiator = '(new ' + moduleClass + ')'
-		
-		console.log('indices', callRecord.start, callRecord.end)
-		
-		var iString = i.toString()
-		var len = iString.length
+		var 
+			moduleName = eval(callRecord.callExpr), // TODO: sanitize?
+			moduleClass = toIdentifier(moduleName) + 'Module',
+			instantiator = '(new ' + moduleClass + '())',
+			iString = i.toString(),
+			len = iString.length
 		
 		var token = SNOWMAN + (new Array(callRecord.end - callRecord.start - 1 - len)).join('0') + iString + SNOWMAN
 		code = code.substr(0, callRecord.start) + token + code.substr(callRecord.end)
@@ -204,7 +192,7 @@ function replaceRequiresWithModules(code, modules, requires){
 		code = code.replace(token, v)
 	})
 	
-	$('#code2').text(code)
+	return code
 }
 
 function renderModuleTabs(modules){
