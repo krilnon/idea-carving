@@ -92,7 +92,18 @@ function Type(val){
 	this.toString = function(){
 		if(!this.value) return 'Void'
 		if(this.value.constructor == Array){
-			return _.pluck(this.value, 'name').join(' | ')
+			var optional = false
+			var types = []
+			_.each(this.value, function(e, i){
+				if(e){
+					types.push(e.name)
+				} else {
+					optional = true
+				}
+			})
+			var ret = types.join(' | ')
+			if(optional) ret = '[' + ret + ']'
+			return ret
 		}
 		
 		return this.value.name
