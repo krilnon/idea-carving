@@ -127,7 +127,8 @@ function Type(val){
 
 
 var __i__ = 1
-function ObjectChain(module, parent){
+function ObjectChain(module, parent, options){
+	options = options || {}
 	var internal = function(){} // needed for apply()
 	var nVals = new WeakMap
 	var id = __i__++
@@ -135,6 +136,9 @@ function ObjectChain(module, parent){
 		get: function(target, name, receiver){
 			console.log('[[get]] #' + id, module.name, name)
 			if(target[name]) return target[name]
+			if(options.argPosition){
+				name = '@' + options.argPosition.join(',') + '::' + name
+			}
 			var nVal = new NamedValue(name, null, parent)
 			var val = new ObjectChain(module, nVal)
 			nVal.value = val
@@ -148,29 +152,34 @@ function ObjectChain(module, parent){
 		},
 		
 		apply: function(target, receiver, args){
+			var name = '()' // '()' is the name for any function call
+			if(options.argPosition != null){ // need explicit check to avoid 0 => false
+				name = '@' + options.argPosition + '::' + name
+			}
 			var types = _.map(args, function(e){ return e.constructor })
 			var prettyTypes = _.map(types, function(t){ return t.toString().match(/\w+ (\w+)/)[1] })
 			console.log(parent.name + '(' + prettyTypes.join(', ') + ')')
 			parent.callable = true
 			parent.args.push(types)
 			
-			// call any functions in the arguments
-			_.each(args, function(arg){
-				console.log('thinking about calling: ', arg)
-				if(typeof arg == 'function'){
-					try {
-						arg()
-					} catch(err){
-						console.log('error from call-spoofed function', err)
-					}
-				}
-			})
-			
-			var nVal = new NamedValue('()', null, parent) // '()' is the name for any function call
+			var nVal = new NamedValue(name, null, parent)
 			var val = new ObjectChain(module, nVal)
 			nVal.value = val
 			parent.children.push(nVal)
 			nVals.set(nVal, nVal)
+			
+			// call any functions in the arguments
+			_.each(args, function(arg, i){
+				if(typeof arg == 'function'){
+					try {
+						var argArgs = _.map(_.range(arg.length), function(n){ 
+							return new ObjectChain(module, nVal, { argPosition: [i, n] }) 
+						})
+						arg.apply(new ObjectChain(module, nVal, { isThis: true }), argArgs)
+					} catch(err){ console.log(err) }
+				}
+			})
+			
 			return val
 		}
 	})
@@ -232,12 +241,10 @@ function collapseProperties(namedValues){
 	
 	console.log('collapse properties named: ', namedValues[0].qname, namedValues)
 	
+	// deal with functions
 	_.each(namedValues, function(e, i, a){
 		if(e.callable){
 			collapsedValue.callable = true
-			console.log('arg sets', _.reduce(_.pluck(namedValues, 'args'), function(a, v){
-				return a.concat(v)
-			}, []))
 			collapsedValue.args = typeUnifyArgs(_.reduce(_.pluck(namedValues, 'args'), function(a, v){
 				return a.concat(v)
 			}, []))

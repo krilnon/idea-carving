@@ -152,6 +152,7 @@ function onModuleData(data){
 	// replace requires with instances of inference models
 	var parsable = true
 	
+	// TODO: this could all be moved into a worker thread, as long as the data structures serialize nicely
 	try {
 		esprima.parse(code)
 	} catch(err){
