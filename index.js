@@ -150,25 +150,34 @@ function onModuleData(data){
 	renderModuleTabs(moduleCode)
 	
 	// replace requires with instances of inference models
+	var parsable = true
 	
-	var requires = []
-	_.each(parse(code), function(astNode, i){
-		var nodeRequires = new RequireWalker(astNode).walk()
-		if(nodeRequires && nodeRequires.length > 0) requires = requires.concat(nodeRequires)
-	})
+	try {
+		esprima.parse(code)
+	} catch(err){
+		parsable = false
+	}
 	
-	var newCode = replaceRequiresWithModules(code, requires)
+	if(parsable){
+		var requires = []
+		_.each(parse(code), function(astNode, i){
+			var nodeRequires = new RequireWalker(astNode).walk()
+			if(nodeRequires && nodeRequires.length > 0) requires = requires.concat(nodeRequires)
+		})
 	
-	latestInferenceCode = _.values(moduleCode).concat(newCode).join('\n')
-	$('#code2').text(latestInferenceCode)
+		var newCode = replaceRequiresWithModules(code, requires)
 	
-	// now send the inference code to CFA2 through Esprima
+		latestInferenceCode = _.values(moduleCode).concat(newCode).join('\n')
+		$('#code2').text(latestInferenceCode)
 	
-	esprimaWorker.postMessage({
-		type: 'tryParse',
-		code: latestInferenceCode
-	})
-	$('#esprima-status').addClass('status-error')
+		// now send the inference code to CFA2 through Esprima
+	
+		esprimaWorker.postMessage({
+			type: 'tryParse',
+			code: latestInferenceCode
+		})
+		$('#esprima-status').addClass('status-error')
+	}
 }
 
 function replaceRequiresWithModules(code, requires){

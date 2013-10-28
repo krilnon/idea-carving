@@ -154,6 +154,18 @@ function ObjectChain(module, parent){
 			parent.callable = true
 			parent.args.push(types)
 			
+			// call any functions in the arguments
+			_.each(args, function(arg){
+				console.log('thinking about calling: ', arg)
+				if(typeof arg == 'function'){
+					try {
+						arg()
+					} catch(err){
+						console.log('error from call-spoofed function', err)
+					}
+				}
+			})
+			
 			var nVal = new NamedValue('()', null, parent) // '()' is the name for any function call
 			var val = new ObjectChain(module, nVal)
 			nVal.value = val
