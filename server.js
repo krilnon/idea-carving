@@ -9,7 +9,7 @@ var
 
 var
 	API = {
-		
+		runUserCode: runUserCode
 	},
 	wSocket = new (ws.Server)({ port: 1235 })
 	
@@ -23,6 +23,10 @@ wSocket.on('connection', function(ws){
 		}
 	})
 })
+
+function runUserCode(data){
+	console.log('got some code', data.code)
+}
 
 function onRequest(req, res){
 	var path = url.parse(req.url).pathname

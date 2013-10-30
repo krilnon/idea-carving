@@ -2,6 +2,8 @@ var
 	editor,
 	latestCode,
 	latestInferenceCode,
+	htmlTemplate,
+	socket,
 	ometaWorker = new Worker('workers/ometa.js'),
 	ometaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('OMeta') }),
 	cfa2Worker = new Worker('workers/cfa2.js'),
@@ -9,7 +11,8 @@ var
 	proxyWorker = new Worker('workers/proxy.js'),
 	proxyAPI = new API({ onModuleData: onModuleData, 'console.log': consoleLog2('proxy') }),
 	esprimaWorker = new Worker('workers/esprima.js'),
-	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') })
+	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') }),
+	runMode = 'server'
 	
 var NPSPACE = '\u200B'
 var SNOWMAN = '☃'
@@ -26,12 +29,19 @@ function init(){
 	})
 	
 	getInitialCode()
+	getHTMLTemplate()
+	
 	editor.on('change', onCodeChange)
 	editor.on('dragover', onEditorDragOver)
 	editor.on('drop', onEditorDrop)
+	
+	$('#run-btn').on('click', onRun)
+	
 	esprimaWorker.onmessage = esprimaAPI.handler
 	cfa2Worker.onmessage = cfa2API.handler
 	proxyWorker.onmessage = proxyAPI.handler
+	
+	initSocket()
 }
 
 function getInitialCode(){
@@ -46,6 +56,16 @@ function getInitialCode(){
 			console.log('got the code...', ast)
 			
 			matchLineComments(ast)
+		}
+	})
+}
+
+function getHTMLTemplate(){
+	$.ajax({
+		url: 'client-template.html',
+		dataType: 'text',
+		success: function(data){
+			htmlTemplate = data
 		}
 	})
 }
@@ -203,6 +223,53 @@ function replaceRequiresWithModules(code, requires){
 	})
 	
 	return code
+}
+
+function onRun(){
+	switch(runMode){
+		case 'client':
+			runCodeOnClient()
+			break
+		
+		case 'server':
+			runCodeOnServer()
+			break
+	}
+}
+
+function runCodeOnClient(){
+	var iframe = $('#user-page')[0]
+	htmlTemplate = htmlTemplate.replace('$script', latestInferenceCode)
+	iframe.contentWindow.contents = htmlTemplate
+	iframe.src = 'javascript:window["contents"]'
+}
+
+function runCodeOnServer(){
+	socket.send(JSON.stringify({
+		type: 'runUserCode',
+		code: latestInferenceCode
+	}))
+}
+
+function initSocket(){
+    socket = new WebSocket("ws://" + document.domain + ":1235/bide2")
+    console.log("Using a standard websocket")
+
+    socket.onopen = function(e) {
+        console.log('socket opened')
+    }
+
+    socket.onerror = function(e) {
+        console.log('socket error', e)
+    }
+
+    socket.onmessage = function(e) {
+
+    }
+
+    socket.onclose = function(e) {
+       
+    }
 }
 
 function renderModuleTabs(modules){
