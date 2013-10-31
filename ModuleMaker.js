@@ -18,6 +18,15 @@ ModuleMaker.prototype.makeInferenceModule = function(){
 	return m
 }
 
+ModuleMaker.prototype.makeRunnableModule = function(){
+	var m = 'function ' + this.moduleName + '(){\n'
+	
+	m += this.makeRunnableMembers()
+	m += '\n}\n\n'
+	
+	return m
+}
+
 ModuleMaker.prototype.makeInferenceMembers = function(){
 	var m = ''
 	
@@ -26,6 +35,17 @@ ModuleMaker.prototype.makeInferenceMembers = function(){
 		if(memberCode) m += '    ' + memberCode + '\n\n'
 	})
 
+	return m
+}
+
+ModuleMaker.prototype.makeRunnableMembers = function(){
+	var m = ''
+	
+	this.memberIterator(function(member, qname, i){
+		var memberCode = this.makeRunnableMember(qname)
+		if(memberCode) m += '    ' + memberCode + '\n\n'
+	})
+	
 	return m
 }
 
@@ -44,7 +64,6 @@ ModuleMaker.prototype.memberIterator = function(iterator){
 }
 
 ModuleMaker.prototype.makeInferenceMember = function(qname){
-	if(isFunctionDerived(qname)) return	
 	var m = ''
 	
 	var memberInfo = this.members[qname]
@@ -57,15 +76,51 @@ ModuleMaker.prototype.makeInferenceMember = function(qname){
 	return m
 }
 
+ModuleMaker.prototype.makeRunnableMember = function(qname){
+	var m = ''
+	
+	var memberInfo = this.members[qname]
+	var name = this.withinModuleName(qname)
+	
+	m += 'this.' + name + ' = '
+	m += this.makeMemberExampleInitializer(qname)
+	
+	return m
+}
+
 ModuleMaker.prototype.makeMemberInitializer = function(info, qname){
 	if(info.args){
-		var safeArgs = _.map(info.args.split(','), function(e, i){ return 'arg' + i}).join(', ')
+		var safeArgs = this.makeSafeArgs(qname)
 		return 'function(' + safeArgs + '){ return new ' + this.makeRetValName(qname) + '() }'
 	} else if(info.type){
 		// TODO: Pass type info along from proxy worker.
 	} else {
 		return '{}'
 	}
+}
+
+ModuleMaker.prototype.makeMemberExampleInitializer = function(qname){
+	var m = ''
+	
+	var info = this.members[qname]
+	if(info.args){
+		m += 'function(' + this.makeSafeArgs(qname) + '){\n'
+		
+		
+		
+		m += '\n\t}\n'
+	} else if(info.type){
+		
+	} else {
+		m += '{ example: "val" }\n' 
+	}
+	
+	return m
+}
+
+ModuleMaker.prototype.makeSafeArgs = function(qname){
+	var info = this.members[qname]
+	return _.map(info.args.split(','), function(e, i){ return 'arg' + i}).join(', ')
 }
 
 // TODO: again, make this actually work instead of hack-work

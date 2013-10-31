@@ -2,6 +2,7 @@ var
 	editor,
 	latestCode,
 	latestInferenceCode,
+	latestRunnableCode,
 	htmlTemplate,
 	socket,
 	ometaWorker = new Worker('workers/ometa.js'),
@@ -158,6 +159,7 @@ function onModuleData(data){
 	
 	// make modules for type inference
 	var moduleCode = {}
+	var runnableCode = {}
 	for(var moduleName in data.value){
 		var moduleData = data.value[moduleName]
 		var maker = new ModuleMaker(moduleName, moduleData.members)
@@ -165,7 +167,13 @@ function onModuleData(data){
 		var module = maker.makeInferenceModule()
 		
 		moduleCode[moduleName] = module
+		
+		// 'runnable'
+		runnableCode[moduleName] = maker.makeRunnableModule()
 	}
+	
+	latestRunnableCode = ''
+	_.each(runnableCode, function(v){ latestRunnableCode += v })
 	
 	renderModuleTabs(moduleCode)
 	
@@ -252,8 +260,7 @@ function runCodeOnServer(){
 }
 
 function initSocket(){
-    socket = new WebSocket("ws://" + document.domain + ":1235/bide2")
-    console.log("Using a standard websocket")
+    socket = new WebSocket('ws://' + document.domain + ':1235/bide2')
 
     socket.onopen = function(e) {
         console.log('socket opened')
