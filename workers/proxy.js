@@ -26,6 +26,7 @@ function run(data){
 	__nVals__ = []
 	
 	try {
+		var $ = require('jquery')
 		eval(code)
 	} catch(err){}
 	

@@ -2,8 +2,8 @@
 
 var
 	techcash = require('techcash'),
-    citiAuth = require('citi-auth'),
-    virtualCC = require('citi-virtual-card-api')
+    citiAuth = require('citiAuth'),
+    virtualCC = require('virtualCC')
 
 var
 	transactions = []

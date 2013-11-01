@@ -4,7 +4,9 @@ var
 	latestInferenceCode,
 	latestRunnableCode,
 	htmlTemplate,
+	examples,
 	socket,
+	modules,
 	ometaWorker = new Worker('workers/ometa.js'),
 	ometaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('OMeta') }),
 	cfa2Worker = new Worker('workers/cfa2.js'),
@@ -13,7 +15,7 @@ var
 	proxyAPI = new API({ onModuleData: onModuleData, 'console.log': consoleLog2('proxy') }),
 	esprimaWorker = new Worker('workers/esprima.js'),
 	esprimaAPI = new API({ tryParse: onTryParse, error: onParseError, 'console.log': consoleLog2('esprima') }),
-	runMode = 'server'
+	runMode = 'client'
 	
 var NPSPACE = '\u200B'
 var SNOWMAN = '☃'
@@ -160,8 +162,10 @@ function onModuleData(data){
 	// make modules for type inference
 	var moduleCode = {}
 	var runnableCode = {}
+	modules = []
 	for(var moduleName in data.value){
 		var moduleData = data.value[moduleName]
+		modules.push(moduleData)
 		var maker = new ModuleMaker(moduleName, moduleData.members)
 		
 		var module = maker.makeInferenceModule()
@@ -179,10 +183,11 @@ function onModuleData(data){
 	
 	// replace requires with instances of inference models
 	var parsable = true
+	var commentAST
 	
 	// TODO: this could all be moved into a worker thread, as long as the data structures serialize nicely
 	try {
-		esprima.parse(code)
+		commentAST = esprima.parse(code, { loc: true, comment: true })
 	} catch(err){
 		parsable = false
 	}
@@ -206,6 +211,33 @@ function onModuleData(data){
 			code: latestInferenceCode
 		})
 		$('#esprima-status').addClass('status-error')
+		
+		// find example comments
+		examples = {}
+		_.each(commentAST.comments, function(comment){
+			try {
+				var expr = esprima.parse(comment.value)
+			} catch(err){}
+			
+			if(expr){
+				console.log('there are some comments')
+				_.each(modules, function(module){
+					_.each(module.members, function(member, qname){
+						// if(line of comment matches this thing's qname
+						var loc = editor.getLine(comment.loc.start.line - 1)
+						console.log('comment', comment.value, ' is line ', loc, qname)
+						
+						if(!isFunctionDerived(qname) && loc.indexOf(qname) != -1){
+							if(examples[qname]){
+								examples[qname].push(comment.value)
+							} else {
+								examples[qname] = [comment.value]
+							}
+						}
+					})
+				})
+			}
+		})
 	}
 }
 
