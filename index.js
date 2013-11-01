@@ -345,12 +345,16 @@ function renderModuleTabs(modules){
 
 function renderModuleData(modules){
 	for(var module in modules){
+		if(module == 'jquery') continue
 		var $name = $('<h3 />', { text: module })
 		var $list = $('<ul />')
 		
 		for(var member in modules[module].members){
 			var text = member.split(module + '.').join('') //FIXME: Horribly messy way to remove the name.
 			var memberObj = modules[module].members[member]
+			
+			if(text.indexOf('()') == text.length - ('()').length) continue // skip "duplicate" listing of func and retval
+			if(text.indexOf('.length') == text.length - ('.length').length) continue // skip autogen'd .lengths
 			
 			if(memberObj.args) text += ': function(' + memberObj.args + ')'
 			
