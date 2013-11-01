@@ -211,7 +211,7 @@ function getModuleData(){
 		moduleData.members = {}
 		
 		var moduleMembers = _.filter(typeMap, function(typedName){
-			return typedName.qname.indexOf(name) == 0
+			return typedName.qname.split('.')[0] == name
 		})
 		
 		_.each(moduleMembers, function(typedName, i){
