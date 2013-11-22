@@ -1,0 +1,29 @@
+#editor {
+	position: relative;
+	width: 600px;
+	height: 600px;
+	border: 1px dotted black;
+	float: left;
+}
+
+#testbed {
+	position: relative;
+	height: 1em;
+}
+
+#history {
+	position: relative;
+	height: 10em;
+}
+
+.container {
+	float: left;
+	width: 30em;
+	height: 10em;
+	border: 3px solid red;
+}
+
+.container2 {
+	float: left;
+	clear: left;
+}
