@@ -1,7 +1,16 @@
 function ModuleMaker(name, members){
 	this.name = name
-	this.moduleName = toIdentifier(name) + 'Module'
+	//this.moduleName = toIdentifier(name) + 'Module'
 	this.members = members
+	
+	var template = Handlebars.compile(jsTemplate)
+	var context = {
+	   moduleName: name,
+	   members: members
+	}
+	
+	var result = template(context)
+	console.log('got a templated result', result)
 }
 
 /*

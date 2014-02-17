@@ -4,6 +4,7 @@ var
 	latestInferenceCode,
 	latestRunnableCode,
 	htmlTemplate,
+	jsTemplate,
 	examples,
 	socket,
 	modules,
@@ -33,6 +34,7 @@ function init(){
 	
 	getInitialCode()
 	getHTMLTemplate()
+	getJSTemplate()
 	
 	editor.on('change', onCodeChange)
 	editor.on('dragover', onEditorDragOver)
@@ -49,7 +51,7 @@ function init(){
 
 function getInitialCode(){
 	$.ajax({
-		url: 'test2.js?theseus=no',
+		url: 'test3.js?theseus=no',
 		dataType: 'text',
 		success: function(data){
 			editor.setValue(data)
@@ -69,6 +71,16 @@ function getHTMLTemplate(){
 		dataType: 'text',
 		success: function(data){
 			htmlTemplate = data
+		}
+	})
+}
+
+function getJSTemplate(){
+	$.ajax({
+		url: 'ModuleTemplate.js',
+		dataType: 'text',
+		success: function(data){
+			jsTemplate = data
 		}
 	})
 }
@@ -335,11 +347,20 @@ function renderModuleTabs(modules){
 			id: name
 		})
 		
-		pane.append($('<pre />', {
-			text: code
-		}))
+		var tempEditor = $('<div />')
+		pane.append(tempEditor)
 		
 		panes.append(pane)
+
+		tab.on('click', function(){
+			setTimeout(function(){
+				// replace the temporary <pre /> with a CodeMirror editor
+				var cm = CodeMirror(tempEditor[0], {
+					value: code,
+					mode: 'javascript'
+				})
+			}, 20)
+		})
 	})
 }
 

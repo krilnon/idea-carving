@@ -11,11 +11,12 @@ h2 {
 }
 
 #outline {
-	position: relative;
+	position: absolute;
 	width: 300px;
 	float: right;
 	border: 1px dotted black;
 	padding: 0.5em;
+	left: calc(100% - 300px);
 }
 
 #modules {
